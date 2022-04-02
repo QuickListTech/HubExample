@@ -1,0 +1,72 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+
+</script>
+</head>
+<body>
+<h2>QuickList connection status: <span id="status">{{ status }}</span></h2>
+
+<div style="float: left; width: 300px">
+<ul>
+	{% for list in quicklists %}
+	<li><a href="?QuicklistUUID={{ list.uuid }}&name={{ list.name }}">{{ list.name }}</a></li>
+	{% endfor %}
+</ul>
+</div>
+
+<div style="margin-left: 300px;">
+<h3>{% if args.name %}{{ args.name }}{% endif %}</h3>
+<form action="{{ url_for('quicklist.create_ticker') }}" method="POST" id="createticker">
+</form>
+
+<table>
+<tr>
+	<th>ID</th>
+	<th>Symbol</th>
+	<th>Exchange</th>
+	<th>Asset Type</th>
+	<th></th>
+</tr>
+{% for ticker in tickers %}
+<tr>
+	<td>{{ ticker.uuid }}</td>
+	<td>{{ ticker.symbol }}</td>
+	<td>{{ ticker.exchange }}</td>
+	<td>{{ ticker.asset }}</td>
+	<td>
+		<form action="{{ url_for('quicklist.delete_ticker', id = ticker.uuid )}}" method="POST">
+		<a href="" onclick="this.closest('form').submit(); return false;">Delete</a>
+		<input type="hidden" name="quicklist" value="{{ args['QuicklistUUID'] }}">
+		<input type="hidden" name="owner" value="{{ owner }}">
+		</form>
+	</td>
+</tr>
+{% endfor %}
+{% for ticker in temp %}
+<tr>
+	<td>{{ ticker["TickerUUID"] }}</td>
+	<td>{{ ticker["Object"]["Symbol"] }}</td>
+	<td>{{ ticker["Object"]["Exchange"] }}</td>
+	<td>{{ ticker["Object"]["AssetClass"] }}</td>
+	<td>
+	</td>
+</tr>
+{% endfor %}
+<tr>
+	<td></td>
+	<td>{{ form.symbol(size=20, form="createticker") }}</td>
+	<td>{{ form.exchange(size=20, form="createticker") }}</td>
+	<td>{{ form.asset(form="createticker") }}</td>
+	<td>
+		<input type="hidden" form="createticker" name="quicklist" value="{{ args['QuicklistUUID'] }}">
+		<input type="hidden" form="createticker" name="owner" value="{{ owner }}">
+		{{ form.submit(form="createticker") }}
+	</td>
+</tr>
+</table>
+</div>
+</body>
+</html>
