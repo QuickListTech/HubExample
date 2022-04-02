@@ -206,12 +206,7 @@ def updateSequence(db, msg):
     db.commit()
 
 def processCreateTicker(db, msg, id):
-    hasReloaded = False
-
-    if id == 0 or msg["SeqID"] == 1:
-        hasReloaded = reload(db, msg)
-
-    if not hasReloaded:
+    if not hasReloaded(db,msg,id):
         print(msg)
 
         uuid = msg["TickerUUID"]
@@ -232,24 +227,14 @@ def processCreateTicker(db, msg, id):
 
 
 def processDeleteTicker(db, msg, id):
-    hasReloaded = False
-
-    if id == 0 or msg["SeqID"] == 1:
-        hasReloaded = reload(db, msg)
-
-    if not hasReloaded:
+    if not hasReloaded(db,msg,id):
         db.execute("DELETE FROM tickers WHERE uuid = ?", (msg["TickerUUID"],))
         db.commit()
 
         updateSequence(db, msg)
 
 def processCreateQuicklist(db, msg, id):
-    hasReloaded = False
-
-    if id == 0 or msg["SeqID"] == 1:
-        hasReloaded = reload(db, msg)
-
-    if not hasReloaded:
+    if not hasReloaded(db,msg,id):
         uuid = msg["QuicklistUUID"]
         owner = msg["BroadcastOwnerUUID"]
         seq = msg["SeqID"]
@@ -265,12 +250,7 @@ def processCreateQuicklist(db, msg, id):
             updateSequence(db, msg)
 
 def processUpdateQuicklist(db, msg, id):
-    hasReloaded = False
-
-    if id == 0 or msg["SeqID"] == 1:
-        hasReloaded = reload(db, msg)
-
-    if not hasReloaded:
+    if not hasReloaded(db,msg,id):
         uuid = msg["QuicklistUUID"]
         owner = msg["BroadcastOwnerUUID"]
         seq = msg["SeqID"]
@@ -283,16 +263,19 @@ def processUpdateQuicklist(db, msg, id):
         updateSequence(db, msg)
 
 def processDeleteQuicklist(db, msg, id):
-    hasReloaded = False
-
-    if id == 0 or msg["SeqID"] == 1:
-        hasReloaded = reload(db, msg)
-
-    if not hasReloaded:
+    if not hasReloaded(db,msg,id):
         db.execute("DELETE FROM quicklists WHERE uuid = ?", (msg["QuicklistUUID"],))
         db.commit()
 
         updateSequence(db, msg)
+
+def hasReloaded(db, msg, id):
+    has = False
+
+    if id == 0 or msg["SeqID"] == 1:
+        has = reload(db, msg)
+
+    return has
 
 def reload(db, msg):
     row = db.execute("SELECT * FROM owners WHERE uuid = ? AND seq < ?", (msg["BroadcastOwnerUUID"], msg["SeqID"] - 1)).fetchone()
